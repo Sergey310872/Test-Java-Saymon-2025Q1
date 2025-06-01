@@ -27,6 +27,12 @@ public class ServiceMessageHandle {
         this.properties = PropertiesFile.PROP;
     }
 
+    public ServiceMessageHandle(Properties properties) {
+        this.sourceKafkaConsumer = new SourceKafkaConsumer();
+        this.sinkKafkaProducer = new SinkKafkaProducer();
+        this.properties = properties;
+    }
+
     public void sourceMessages() {
         long timeFrame = Long.parseLong(PropertiesFile.PROP.getProperty("time.frame.s", "1")) * 1000;
         long from = System.currentTimeMillis();
@@ -48,15 +54,17 @@ public class ServiceMessageHandle {
         }
     }
 
-    private Iterable<SourceMessage> deduplication(Iterable<SourceMessage> source) {
+     Iterable<SourceMessage> deduplication(Iterable<SourceMessage> source) {
         Set<SourceMessage> deduplication = new HashSet<>();
         for (SourceMessage sourceMessage : source) {
-            deduplication.add(sourceMessage);
+            if (sourceMessage != null) {
+                deduplication.add(sourceMessage);
+            }
         }
         return deduplication;
     }
 
-    private Iterable<SourceMessage> filtering(Iterable<SourceMessage> source) {
+     Iterable<SourceMessage> filtering(Iterable<SourceMessage> source) {
         List<SourceMessage> list = new ArrayList<>();
         for (SourceMessage sourceMessage : source) {
             double value = sourceMessage.value();
@@ -71,7 +79,7 @@ public class ServiceMessageHandle {
         return list;
     }
 
-    private Iterable<SourceMessage> groupBy(Iterable<SourceMessage> source) {
+    Iterable<SourceMessage> groupBy(Iterable<SourceMessage> source) {
         Map<SourceMessage, SourceMessage> grouped = new TreeMap(new Comparator<SourceMessage>() {
             @Override
             public int compare(SourceMessage o1, SourceMessage o2) {

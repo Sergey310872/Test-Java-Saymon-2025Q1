@@ -5,22 +5,19 @@ import kafka.server.KafkaServer;
 //import kafka.utils.TestUtils;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.apache.kafka.common.utils.Time;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import ru.sergey310872.config.JsonDeserializer;
 import ru.sergey310872.config.JsonSerializer;
-import ru.sergey310872.config.KafkaConsumerConfig1;
-import ru.sergey310872.service.ServiceMessageHandle1;
-import ru.sergey310872.service.SourceKafkaConsumer1;
+import ru.sergey310872.config.KafkaConsumerConfig;
+import ru.sergey310872.service.SourceKafkaConsumer;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,7 +29,6 @@ import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 
 class KafkaConsumerTest {
@@ -45,8 +41,8 @@ class KafkaConsumerTest {
     private KafkaConsumer<String, SourceMessage> consumer1;
     private KafkaProducer<String, SourceMessage> producer1;
 
-    private SourceKafkaConsumer1 sourceKafkaConsumer;
-    private KafkaConsumerConfig1 kafkaConsumerConfig;
+    private SourceKafkaConsumer sourceKafkaConsumer;
+    private KafkaConsumerConfig kafkaConsumerConfig;
 
     @BeforeEach
     void setUp() throws IOException {
@@ -95,8 +91,8 @@ class KafkaConsumerTest {
         consumer1 = new KafkaConsumer<>(consumerProps1);
         consumer1.subscribe(Collections.singletonList(TOPIC));
 
-        kafkaConsumerConfig = Mockito.mock(KafkaConsumerConfig1.class);
-        sourceKafkaConsumer = new SourceKafkaConsumer1(consumer1);
+        kafkaConsumerConfig = Mockito.mock(KafkaConsumerConfig.class);
+        sourceKafkaConsumer = new SourceKafkaConsumer(consumer1);
 
     }
 

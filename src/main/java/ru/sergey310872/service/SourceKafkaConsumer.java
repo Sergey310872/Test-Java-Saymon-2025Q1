@@ -6,46 +6,39 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.sergey310872.config.KafkaConsumerConfig;
-import ru.sergey310872.config.PropertiesFile;
 import ru.sergey310872.dto.SourceMessage;
-import ru.sergey310872.dto.SourceMessageImp;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.*;
 
 public class SourceKafkaConsumer implements Source {
-    private KafkaConsumer<String, String> consumer;
+    private KafkaConsumer<String, SourceMessage> consumer;
     private final Random random = new Random();
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     public SourceKafkaConsumer() {
         this.consumer = new KafkaConsumerConfig().getConsumer();
     }
+    public SourceKafkaConsumer(KafkaConsumer<String, SourceMessage> consumer) {
+        this.consumer = consumer;
+    }
 
     @Override
     public Iterable<SourceMessage> source() {
-        Properties properties = PropertiesFile.PROP;
-//        long startTime = System.currentTimeMillis();
-//        Instant start = Instant.now();
-        String topic = properties.getProperty("kafka.source.topic", "SOURCE");
-        consumer.subscribe(Collections.singletonList(topic));
-        ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
-//        consumer.close();
-//        long endTime = System.currentTimeMillis();
-//        Instant finish = Instant.now();
-//        Duration duration = Duration.ofMillis(endTime - startTime);
-//        System.out.println("Duration: " + duration);
-//        long elapsed = Duration.between(start, finish).toMillis();
-//        System.out.println("Прошло времени, мс: " + elapsed);
-        List<SourceMessage> valuesList = new ArrayList<>();
-        for (ConsumerRecord<String, String> record : records) {
-            LOGGER.info("Received message: key = {}, value = {}", record.key(), record.value());
-            System.out.printf("Received message: key = %s, value = %s%n", record.key(), record.value());
+//        Properties properties = PropertiesFile.PROP;
+//        String topic = properties.getProperty("kafka.source.topic", "SOURCE");
+//        consumer.subscribe(Collections.singletonList(topic));
+        ConsumerRecords<String, SourceMessage> records = consumer.poll(Duration.ofMillis(100));
 
-            Map<String, String> labels = new HashMap<>();
-            labels.put(record.key(), record.value());
-            valuesList.add(new SourceMessageImp(System.currentTimeMillis(), labels, random.nextDouble(100)));
+        List<SourceMessage> valuesList = new ArrayList<>();
+        for (ConsumerRecord<String, SourceMessage> record : records) {
+            valuesList.add(record.value());
+            LOGGER.info("Received message: key = {}, value = {}", record.key(), record.value());
+//            System.out.printf("Received message: key = %s, value = %s%n", record.key(), record.value());
+
+//            Map<String, String> labels = new HashMap<>();
+//            labels.put(record.key(), record.value());
+//            valuesList.add(new SourceMessageImp(System.currentTimeMillis(), labels, random.nextDouble(100)));
         }
         return valuesList;
     }

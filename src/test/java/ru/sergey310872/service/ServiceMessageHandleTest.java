@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ServiceMessageHandleTest {
     private static Properties PROPERTY;
 
-    private ServiceMessageHandle1 serviceMessageHandle;
+    private ServiceMessageHandle serviceMessageHandle;
     List<SourceMessage> serviceMessageList;
 
     @BeforeAll
@@ -31,7 +31,7 @@ class ServiceMessageHandleTest {
 
     @BeforeEach
     void setUp() {
-        serviceMessageHandle = new ServiceMessageHandle1(PROPERTY);
+        serviceMessageHandle = new ServiceMessageHandle(PROPERTY);
         serviceMessageList = new ArrayList<>();
         serviceMessageList.add(new SourceMessageImp(11111, Map.of("A", "value A"), 30));
         serviceMessageList.add(new SourceMessageImp(11112, Map.of("A", "value A"), 40));
