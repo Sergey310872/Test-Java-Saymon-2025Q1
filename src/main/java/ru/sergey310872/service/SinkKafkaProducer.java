@@ -20,6 +20,10 @@ public class SinkKafkaProducer implements Sink {
         this.producer = new KafkaProducerConfig().getProducer();
     }
 
+    public SinkKafkaProducer(KafkaProducer<String, SinkMessage> producer) {
+        this.producer = producer;
+    }
+
     @Override
     public void accept(SinkMessage sinkMessage) {
         Properties properties = PropertiesFile.PROP;
@@ -28,13 +32,7 @@ public class SinkKafkaProducer implements Sink {
 
         ProducerRecord<String, SinkMessage> record = new ProducerRecord<>(topic, key, sinkMessage);
         producer.send(record);
-//        try {
-//            RecordMetadata metadata = producer.send(record).get();
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-        LOGGER.info("Message sent to Kafka topic: {}, with key: {}", topic, key);
 
-//        System.out.println(sinkMessage);
+        LOGGER.info("Message sent to Kafka topic: {}, with key: {}", topic, key);
     }
 }

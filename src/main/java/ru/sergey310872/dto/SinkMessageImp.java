@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Objects;
 
 public class SinkMessageImp implements SinkMessage {
     long from;
@@ -67,5 +68,18 @@ public class SinkMessageImp implements SinkMessage {
     @JsonProperty("count")
     public int count() {
         return this.count;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SinkMessageImp that = (SinkMessageImp) o;
+        return from == that.from && to == that.to && Double.compare(min, that.min) == 0 && Double.compare(max, that.max) == 0 && Double.compare(avg, that.avg) == 0 && count == that.count && Objects.equals(labels, that.labels);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(from, to, labels, min, max, avg, count);
     }
 }

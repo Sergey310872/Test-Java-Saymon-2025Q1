@@ -31,7 +31,7 @@ import java.util.concurrent.ExecutionException;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-class KafkaConsumerTest {
+class KafkaConsumerTestIT {
     private static final String TOPIC = "test-topic";//"SOURCE";// "test-topic";
     private static final String TEST_MESSAGE = "test3-message-1";
 
@@ -42,7 +42,7 @@ class KafkaConsumerTest {
     private KafkaProducer<String, SourceMessage> producer1;
 
     private SourceKafkaConsumer sourceKafkaConsumer;
-    private KafkaConsumerConfig kafkaConsumerConfig;
+//    private KafkaConsumerConfig kafkaConsumerConfig;
 
     @BeforeEach
     void setUp() throws IOException {
@@ -84,14 +84,14 @@ class KafkaConsumerTest {
         Properties consumerProps1 = new Properties();
         consumerProps1.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         consumerProps1.put(ConsumerConfig.GROUP_ID_CONFIG, "test-group");
-        consumerProps1.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+//        consumerProps1.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         consumerProps1.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         consumerProps1.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class.getName());
 
         consumer1 = new KafkaConsumer<>(consumerProps1);
         consumer1.subscribe(Collections.singletonList(TOPIC));
 
-        kafkaConsumerConfig = Mockito.mock(KafkaConsumerConfig.class);
+//        kafkaConsumerConfig = Mockito.mock(KafkaConsumerConfig.class);
         sourceKafkaConsumer = new SourceKafkaConsumer(consumer1);
 
     }
@@ -108,16 +108,16 @@ class KafkaConsumerTest {
         // Отправляем сообщение
         Map<String, String> testMap = new HashMap<>();
         testMap.put("key", "volume");
-        SourceMessage sourceMessage = new SourceMessageImp(1748770678702L, testMap, 44);
+        SourceMessage sourceMessage = new SourceMessageImp(1748770678704L, testMap, 44);
         ProducerRecord<String, SourceMessage> record = new ProducerRecord<>(TOPIC, sourceMessage);
 //        ProducerRecord<String, SinkMessage> record = new ProducerRecord<>(topic, key, sinkMessage);
 
 //        ProducerRecord<String, String> record = new ProducerRecord<>(TOPIC, TEST_MESSAGE);
         producer1.send(record).get();
-
+//        Thread.sleep(5000);
         // Читаем сообщение
 //        new ServiceMessageHandle1().sourceMessages();
-        Mockito.when(kafkaConsumerConfig.getConsumer()).thenReturn(consumer1);
+//        Mockito.when(kafkaConsumerConfig.getConsumer()).thenReturn(consumer1);
 //        Iterable<SourceMessage> testResult = new SourceKafkaConsumer1(consumer1).source();
         Iterable<SourceMessage> testResult = sourceKafkaConsumer.source();
 //        ConsumerRecords<String, SourceMessage> received1 = consumer1.poll(Duration.ofSeconds(10));
@@ -127,13 +127,5 @@ class KafkaConsumerTest {
         // Проверяем
         assertThat(received.value()).isEqualTo(sourceMessage);
 //        assertThat(received.value()).isEqualTo(TEST_MESSAGE);
-    }
-
-    @Test
-    void sourceMessages() {
-    }
-
-    @Test
-    void source() {
     }
 }

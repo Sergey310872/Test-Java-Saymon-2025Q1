@@ -1,11 +1,14 @@
-package ru.sergey310872.service;
+package ru.sergey310872.unitTests;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.sergey310872.config.PropertiesFile;
+import ru.sergey310872.dto.SinkMessage;
+import ru.sergey310872.dto.SinkMessageImp;
 import ru.sergey310872.dto.SourceMessage;
 import ru.sergey310872.dto.SourceMessageImp;
+import ru.sergey310872.service.ServiceMessageHandle;
 
 import java.io.InputStream;
 import java.util.*;
@@ -73,15 +76,27 @@ class ServiceMessageHandleTest {
     void groupingBySourceMessageTest() {
         //given
         List<SourceMessage> expected = new ArrayList<>(serviceMessageList);
-//        expected.remove(4);
-//        expected.remove(3);
+        expected.remove(4);
+        expected.set(3, new SourceMessageImp(11115, Map.of("B", "value B"), 130));
         //when
         Iterable<SourceMessage> result = serviceMessageHandle.groupBy(serviceMessageList);
-//        List<SourceMessage> actual = new ArrayList<>((Collection) deduplicated);
+        List<SourceMessage> actual = new ArrayList<>((Collection) result);
         //then
         assertNotNull(result);
         assertNotSame(serviceMessageList, result);
-        assertEquals(expected, expected);
+        assertEquals(expected.get(3).value(), actual.get(3).value());
+    }
+
+    @Test
+    void aggregatingSourceMessageTest() {
+        //given
+        SinkMessage expected = new SinkMessageImp(11111, 11115,
+                Map.of("A", "value B", "B", "value B"), 30, 70, 50, 5);
+        //when
+        SinkMessage result = serviceMessageHandle.aggregation(serviceMessageList);
+        //then
+        assertNotNull(result);
+        assertEquals(expected, result);
     }
 
 }

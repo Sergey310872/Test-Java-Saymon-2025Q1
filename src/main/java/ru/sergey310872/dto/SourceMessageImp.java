@@ -64,7 +64,7 @@ public class SourceMessageImp implements SourceMessage, Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         SourceMessageImp that = (SourceMessageImp) o;
 
-        boolean result = true;
+//        boolean result = true;
         for (String key : keySet) {
             String thatValue = that.labels.get(key);
             String value = labels.get(key);
@@ -72,7 +72,8 @@ public class SourceMessageImp implements SourceMessage, Serializable {
                 return false;
             };
         }
-        return result;
+//        return result;
+        return true;
 
 //        return timestamp == that.timestamp && Double.compare(value, that.value) == 0 && Objects.equals(labels, that.labels);
     }

@@ -54,7 +54,7 @@ public class ServiceMessageHandle {
         }
     }
 
-     Iterable<SourceMessage> deduplication(Iterable<SourceMessage> source) {
+     public Iterable<SourceMessage> deduplication(Iterable<SourceMessage> source) {
         Set<SourceMessage> deduplication = new HashSet<>();
         for (SourceMessage sourceMessage : source) {
             if (sourceMessage != null) {
@@ -64,7 +64,7 @@ public class ServiceMessageHandle {
         return deduplication;
     }
 
-     Iterable<SourceMessage> filtering(Iterable<SourceMessage> source) {
+    public Iterable<SourceMessage> filtering(Iterable<SourceMessage> source) {
         List<SourceMessage> list = new ArrayList<>();
         for (SourceMessage sourceMessage : source) {
             double value = sourceMessage.value();
@@ -79,18 +79,22 @@ public class ServiceMessageHandle {
         return list;
     }
 
-    Iterable<SourceMessage> groupBy(Iterable<SourceMessage> source) {
+    public Iterable<SourceMessage> groupBy(Iterable<SourceMessage> source) {
         Map<SourceMessage, SourceMessage> grouped = new TreeMap(new Comparator<SourceMessage>() {
             @Override
             public int compare(SourceMessage o1, SourceMessage o2) {
                 for (String key : keySetGroupBy) {
                     String value_o1 = o1.labels().get(key);
                     String value_o2 = o2.labels().get(key);
-                    if (value_o1 == null || value_o2 == null || !value_o1.equals(value_o2)) {
-                        return 1;
+                    if (value_o1 != null & value_o2 != null && value_o1.equals(value_o2)) {
+                        return 0;
                     }
+//                    if (value_o1 == null || value_o2 == null || !value_o1.equals(value_o2)) {
+//                        return 1;
+//                    }
                 }
-                return 0;
+//                return 0;
+                return 1;
             }
         });
 
@@ -98,7 +102,7 @@ public class ServiceMessageHandle {
             SourceMessage message = grouped.get(sourceMessage);
             if (message != null) {
                 long groupedTimestemp = Math.max(message.timestamp(), sourceMessage.timestamp());
-                Map<String, String> groupedLabels = message.labels();
+                Map<String, String> groupedLabels = new HashMap<>(message.labels());
                 for (Map.Entry<String, String> str : message.labels().entrySet()) {
                     groupedLabels.put(str.getKey(), str.getValue());
                 }
@@ -113,7 +117,7 @@ public class ServiceMessageHandle {
         return grouped.values();
     }
 
-    private SinkMessage aggregation(Iterable<SourceMessage> source) {
+    public SinkMessage aggregation(Iterable<SourceMessage> source) {
         Map<String, String> labels = new HashMap<>();
         double min = Double.MAX_VALUE;
         double max = -Double.MAX_VALUE;
