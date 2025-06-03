@@ -2,7 +2,6 @@ package ru.sergey310872.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
 
@@ -68,6 +67,34 @@ public class SinkMessageImp implements SinkMessage {
     @JsonProperty("count")
     public int count() {
         return this.count;
+    }
+
+    public void setFrom(long from) {
+        this.from = from;
+    }
+
+    public void setTo(long to) {
+        this.to = to;
+    }
+
+    public void setLabels(Map<String, String> labels) {
+        this.labels = labels;
+    }
+
+    public void setMin(double min) {
+        this.min = min;
+    }
+
+    public void setMax(double max) {
+        this.max = max;
+    }
+
+    public void setAvg(double avg) {
+        this.avg = avg;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
     }
 
     @Override

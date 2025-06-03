@@ -2,17 +2,17 @@ package ru.sergey310872.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.serialization.Deserializer;
-import ru.sergey310872.dto.SourceMessageImp;
+import ru.sergey310872.dto.SinkMessageImp;
 
-public class JsonDeserializer<T> implements Deserializer<T> {
+public class JsonDeserializerSinkMessage<T> implements Deserializer<T> {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final Class<T> targetType;
 
-    public JsonDeserializer() {
-        this.targetType = (Class<T>) SourceMessageImp.class;
+    public JsonDeserializerSinkMessage() {
+        this.targetType = (Class<T>) SinkMessageImp.class;
     }
 
-    public JsonDeserializer(Class<T> targetType) {
+    public JsonDeserializerSinkMessage(Class<T> targetType) {
         this.targetType = targetType;
     }
 

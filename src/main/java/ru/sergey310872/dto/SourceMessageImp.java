@@ -4,12 +4,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import ru.sergey310872.config.PropertiesFile;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class SourceMessageImp implements SourceMessage, Serializable {
     private static Set<String> keySet;
+
     static {
-        String[] strKeys = PropertiesFile.PROP.getProperty("keys.for.deduplication.by","").split(",");
+        String[] strKeys = PropertiesFile.PROP.getProperty("keys.for.deduplication.by", "").split(",");
         keySet = new HashSet<>(Arrays.asList(strKeys));
     }
 
@@ -36,8 +40,6 @@ public class SourceMessageImp implements SourceMessage, Serializable {
         this.timestamp = timestamp;
         this.labels = labels;
         this.value = value;
-//        String[] strKeys = PropertiesFile.PROP.getProperty("keys.for.group.by","").split(",");
-//        this.keySet = new HashSet<>(Arrays.asList(strKeys));
     }
 
     @Override
@@ -64,22 +66,18 @@ public class SourceMessageImp implements SourceMessage, Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         SourceMessageImp that = (SourceMessageImp) o;
 
-//        boolean result = true;
         for (String key : keySet) {
             String thatValue = that.labels.get(key);
             String value = labels.get(key);
             if (value == null || thatValue == null || !thatValue.equals(value)) {
                 return false;
-            };
+            }
         }
-//        return result;
         return true;
-
-//        return timestamp == that.timestamp && Double.compare(value, that.value) == 0 && Objects.equals(labels, that.labels);
     }
 
     @Override
     public int hashCode() {
-        return 0;//Objects.hash(timestamp, labels, value);
+        return 0;
     }
 }

@@ -10,12 +10,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public class ServiceMessageHandle {
-    private static Set<String> keySetGroupBy;
-
-    static {
-        String[] strKeys = PropertiesFile.PROP.getProperty("keys.for.group.by", "").split(",");
-        keySetGroupBy = new HashSet<>(Arrays.asList(strKeys));
-    }
+    private final Set<String> keySetGroupBy;
 
     SourceKafkaConsumer sourceKafkaConsumer;
     SinkKafkaProducer sinkKafkaProducer;
@@ -25,12 +20,16 @@ public class ServiceMessageHandle {
         this.sourceKafkaConsumer = new SourceKafkaConsumer();
         this.sinkKafkaProducer = new SinkKafkaProducer();
         this.properties = PropertiesFile.PROP;
+        String[] strKeys = this.properties.getProperty("keys.for.group.by", "").split(",");
+        keySetGroupBy = new HashSet<>(Arrays.asList(strKeys));
     }
 
     public ServiceMessageHandle(Properties properties) {
         this.sourceKafkaConsumer = new SourceKafkaConsumer();
         this.sinkKafkaProducer = new SinkKafkaProducer();
         this.properties = properties;
+        String[] strKeys = this.properties.getProperty("keys.for.group.by", "").split(",");
+        keySetGroupBy = new HashSet<>(Arrays.asList(strKeys));
     }
 
     public void sourceMessages() {
@@ -49,12 +48,11 @@ public class ServiceMessageHandle {
                 }
                 from = to;
                 to = from + timeFrame;
-                System.out.println("------------------------" + to);
             }
         }
     }
 
-     public Iterable<SourceMessage> deduplication(Iterable<SourceMessage> source) {
+    public Iterable<SourceMessage> deduplication(Iterable<SourceMessage> source) {
         Set<SourceMessage> deduplication = new HashSet<>();
         for (SourceMessage sourceMessage : source) {
             if (sourceMessage != null) {
@@ -89,11 +87,7 @@ public class ServiceMessageHandle {
                     if (value_o1 != null & value_o2 != null && value_o1.equals(value_o2)) {
                         return 0;
                     }
-//                    if (value_o1 == null || value_o2 == null || !value_o1.equals(value_o2)) {
-//                        return 1;
-//                    }
                 }
-//                return 0;
                 return 1;
             }
         });
@@ -113,7 +107,6 @@ public class ServiceMessageHandle {
                 grouped.put(sourceMessage, sourceMessage);
             }
         }
-
         return grouped.values();
     }
 
@@ -147,6 +140,4 @@ public class ServiceMessageHandle {
         }
         return false;
     }
-
-
 }

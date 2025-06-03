@@ -20,6 +20,12 @@
             <artifactId>kafka-clients</artifactId>
             <version>3.8.1</version>
         </dependency>
+        <!-- Jackson для работы с JSON -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.15.2</version>
+        </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -27,13 +33,6 @@
             <version>1.7.36</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka_2.13</artifactId>
-            <version>3.8.1</version>
-<!--            <classifier>test</classifier>-->
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
@@ -47,54 +46,27 @@
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>5.16.1</version>
+            <artifactId>mockito-inline</artifactId>
+            <version>5.2.0</version>
             <scope>test</scope>
-        </dependency>
-        <!-- Jackson для работы с JSON -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.15.2</version>
         </dependency>
     </dependencies>
 
-<!--    <dependencies>-->
-<!--        &lt;!&ndash; Kafka Clients &ndash;&gt;-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.kafka</groupId>-->
-<!--            <artifactId>kafka-clients</artifactId>-->
-<!--            <version>3.4.0</version>-->
-<!--        </dependency>-->
-
-<!--        &lt;!&ndash; Kafka Test (включает EmbeddedKafka) &ndash;&gt;-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.kafka</groupId>-->
-<!--            <artifactId>kafka_2.13</artifactId>-->
-<!--            <version>3.4.0</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
-
-<!--        &lt;!&ndash; JUnit 5 &ndash;&gt;-->
-<!--        <dependency>-->
-<!--            <groupId>org.junit.jupiter</groupId>-->
-<!--            <artifactId>junit-jupiter</artifactId>-->
-<!--            <version>5.8.2</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
-
-<!--        &lt;!&ndash; AssertJ для удобных assertions &ndash;&gt;-->
-<!--        <dependency>-->
-<!--            <groupId>org.assertj</groupId>-->
-<!--            <artifactId>assertj-core</artifactId>-->
-<!--            <version>3.23.1</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
-<!--&lt;!&ndash;        <dependency>&ndash;&gt;-->
-<!--&lt;!&ndash;            <groupId>org.slf4j</groupId>&ndash;&gt;-->
-<!--&lt;!&ndash;            <artifactId>slf4j-api</artifactId>&ndash;&gt;-->
-<!--&lt;!&ndash;            <version>2.0.17</version>&ndash;&gt;-->
-<!--&lt;!&ndash;        </dependency>&ndash;&gt;-->
-<!--    </dependencies>-->
-
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.5.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

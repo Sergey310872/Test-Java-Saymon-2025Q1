@@ -65,7 +65,6 @@ class ServiceMessageHandleTest {
         expected.remove(3);
         //when
         Iterable<SourceMessage> result = serviceMessageHandle.filtering(serviceMessageList);
-//        List<SourceMessage> actual = new ArrayList<>((Collection) deduplicated);
         //then
         assertNotNull(result);
         assertNotSame(serviceMessageList, result);
@@ -98,5 +97,4 @@ class ServiceMessageHandleTest {
         assertNotNull(result);
         assertEquals(expected, result);
     }
-
 }

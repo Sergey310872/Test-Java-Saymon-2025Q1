@@ -15,20 +15,4 @@ public class PropertiesFile {
             e.printStackTrace();
         }
     }
-
-//    private Properties prop;
-//
-//    public PropertiesFile() {
-//        this.prop = new Properties();
-//        try (InputStream input = PropertiesFile.class.getClassLoader()
-//                .getResourceAsStream("application.properties")) {
-//            this.prop.load(input);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    public Properties getProp() {
-//        return prop;
-//    }
 }
