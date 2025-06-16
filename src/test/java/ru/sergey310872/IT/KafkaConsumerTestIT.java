@@ -92,6 +92,7 @@ class KafkaConsumerTestIT {
         // Отправляем сообщение
         ProducerRecord<String, SourceMessage> record = new ProducerRecord<>(TOPIC, sourceMessage);
         producer.send(record).get();
+        producer.flush();
 
         // Читаем сообщение
         Iterable<SourceMessage> testResult = sourceKafkaConsumer.source();

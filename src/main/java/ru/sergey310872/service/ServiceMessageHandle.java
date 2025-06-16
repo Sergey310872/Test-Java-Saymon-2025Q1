@@ -7,9 +7,33 @@ import ru.sergey310872.dto.SourceMessage;
 import ru.sergey310872.dto.SourceMessageImp;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.*;
 
 public class ServiceMessageHandle {
+    private static final Set<SourceMessage> deduplication;
+    static {
+        deduplication = ConcurrentHashMap.newKeySet();
+        long timeFrame = Long.parseLong(PropertiesFile.PROP.getProperty("deduplication.timeFrame.milliseconds", "50000"));
+        // Создаем планировщик с демон-потоком
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread t = new Thread(r);
+            t.setDaemon(true); // Устанавливаем как демон-поток
+            return t;
+        });
+
+        // Задача будет выполняться каждые 50 секунд после 50 секунды задержки
+        scheduler.scheduleAtFixedRate(() -> {
+            System.out.println("Выполняем задачу: " + System.currentTimeMillis());
+            Iterator<SourceMessage> iterator = deduplication.iterator();
+            while (iterator.hasNext()) {
+                SourceMessage message = iterator.next();
+                if (message.timestamp() < System.currentTimeMillis() - timeFrame) {
+                    iterator.remove();
+                }
+            }
+        }, timeFrame, timeFrame, TimeUnit.MILLISECONDS);
+    }
+
     private final Set<String> keySetGroupBy;
 
     SourceKafkaConsumer sourceKafkaConsumer;
@@ -53,7 +77,7 @@ public class ServiceMessageHandle {
     }
 
     public Iterable<SourceMessage> deduplication(Iterable<SourceMessage> source) {
-        Set<SourceMessage> deduplication = new HashSet<>();
+//        Set<SourceMessage> deduplication = new HashSet<>();
         for (SourceMessage sourceMessage : source) {
             if (sourceMessage != null) {
                 deduplication.add(sourceMessage);

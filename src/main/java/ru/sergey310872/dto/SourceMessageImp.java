@@ -78,6 +78,17 @@ public class SourceMessageImp implements SourceMessage, Serializable {
 
     @Override
     public int hashCode() {
-        return 0;
+        Integer hash = 0;
+        for (String key : keySet) {
+            String value = labels.get(key);
+            if (value != null) {
+                hash = hash * 31 + key.hashCode() + value.hashCode();
+            }
+        }
+
+        return hash;
+//        return 0;
     }
+
+
 }

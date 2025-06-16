@@ -46,15 +46,18 @@ class ServiceMessageHandleTest {
     @Test
     void deduplicationSourceMessageTest() {
         //given
-        List<SourceMessage> expected = new ArrayList<>(serviceMessageList);
-        expected.remove(1);
+        Set<SourceMessage> expected = new HashSet<>(serviceMessageList);
+//        List<SourceMessage> expected = new ArrayList<>(serviceMessageList);
+//        expected.remove(1);
         //when
         Iterable<SourceMessage> result = serviceMessageHandle.deduplication(serviceMessageList);
-        List<SourceMessage> actual = new ArrayList<>((Collection) result);
+//        List<SourceMessage> actual = new ArrayList<>((Collection) result);
         //then
         assertNotNull(result);
         assertNotSame(serviceMessageList, result);
-        assertEquals(expected, actual);
+//        assertEquals(expected, actual);
+        assertEquals(expected, result);
+//        assertEquals(new HashSet<>(expected), result);
     }
 
     @Test
