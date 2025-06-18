@@ -8,7 +8,7 @@ import java.util.Objects;
 public class SinkMessageImp implements SinkMessage {
     long from;
     long to;
-    transient Map<String, String> labels;
+    Map<String, String> labels; //transient
     double min;
     double max;
     double avg;

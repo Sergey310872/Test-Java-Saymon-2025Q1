@@ -15,7 +15,7 @@ import java.util.Random;
 
 public class SourceKafkaConsumer implements Source {
     private KafkaConsumer<String, SourceMessage> consumer;
-    private final Random random = new Random();
+//    private final Random random = new Random();
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     public SourceKafkaConsumer() {

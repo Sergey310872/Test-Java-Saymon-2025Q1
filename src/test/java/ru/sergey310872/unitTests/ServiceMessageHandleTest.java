@@ -47,17 +47,12 @@ class ServiceMessageHandleTest {
     void deduplicationSourceMessageTest() {
         //given
         Set<SourceMessage> expected = new HashSet<>(serviceMessageList);
-//        List<SourceMessage> expected = new ArrayList<>(serviceMessageList);
-//        expected.remove(1);
         //when
         Iterable<SourceMessage> result = serviceMessageHandle.deduplication(serviceMessageList);
-//        List<SourceMessage> actual = new ArrayList<>((Collection) result);
         //then
         assertNotNull(result);
         assertNotSame(serviceMessageList, result);
-//        assertEquals(expected, actual);
         assertEquals(expected, result);
-//        assertEquals(new HashSet<>(expected), result);
     }
 
     @Test
@@ -71,33 +66,20 @@ class ServiceMessageHandleTest {
         //then
         assertNotNull(result);
         assertNotSame(serviceMessageList, result);
-        assertEquals(expected, expected);
+        assertIterableEquals(expected, result);
     }
 
     @Test
     void groupingBySourceMessageTest() {
         //given
-        List<SourceMessage> expected = new ArrayList<>(serviceMessageList);
-        expected.remove(4);
-        expected.set(3, new SourceMessageImp(11115, Map.of("B", "value B"), 130));
+        List<SinkMessage> expected1 = new ArrayList<>();
+        expected1.add(new SinkMessageImp(11114, 11115, Map.of("B", "value B"), 60, 70, 65, 2));
+        expected1.add(new SinkMessageImp(11111, 11113, Map.of("A", "value B"), 30, 50, 40, 3));
         //when
-        Iterable<SourceMessage> result = serviceMessageHandle.groupBy(serviceMessageList);
-        List<SourceMessage> actual = new ArrayList<>((Collection) result);
+        Iterable<SinkMessage> result = serviceMessageHandle.groupAndAggregation(serviceMessageList);
         //then
         assertNotNull(result);
         assertNotSame(serviceMessageList, result);
-        assertEquals(expected.get(3).value(), actual.get(3).value());
-    }
-
-    @Test
-    void aggregatingSourceMessageTest() {
-        //given
-        SinkMessage expected = new SinkMessageImp(11111, 11115,
-                Map.of("A", "value B", "B", "value B"), 30, 70, 50, 5);
-        //when
-        SinkMessage result = serviceMessageHandle.aggregation(serviceMessageList);
-        //then
-        assertNotNull(result);
-        assertEquals(expected, result);
+        assertIterableEquals(expected1, result);
     }
 }

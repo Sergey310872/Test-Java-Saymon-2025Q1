@@ -11,6 +11,7 @@ import java.util.concurrent.*;
 
 public class ServiceMessageHandle {
     private static final Set<SourceMessage> deduplication;
+
     static {
         deduplication = ConcurrentHashMap.newKeySet();
         long timeFrame = Long.parseLong(PropertiesFile.PROP.getProperty("deduplication.timeFrame.milliseconds", "50000"));
@@ -66,9 +67,9 @@ public class ServiceMessageHandle {
                 if (dataSource.iterator().hasNext()) {
                     CompletableFuture.supplyAsync(() -> deduplication(dataSource))
                             .thenApplyAsync(deduplicationResult -> filtering(deduplicationResult))
-                            .thenApplyAsync(filteringResult -> groupBy(filteringResult))
-                            .thenApplyAsync(groupResult -> aggregation(groupResult))
-                            .thenApplyAsync(sinkResult -> sinkMessage(sinkResult));
+                            .thenApplyAsync(filteringResult -> groupAndAggregation(filteringResult))
+                            .thenApplyAsync(sinkResult -> sinkMessage(sinkResult)
+                            );
                 }
                 from = to;
                 to = from + timeFrame;
@@ -77,13 +78,15 @@ public class ServiceMessageHandle {
     }
 
     public Iterable<SourceMessage> deduplication(Iterable<SourceMessage> source) {
-//        Set<SourceMessage> deduplication = new HashSet<>();
+        Set<SourceMessage> deduplicatedSet = new HashSet<>();
         for (SourceMessage sourceMessage : source) {
             if (sourceMessage != null) {
-                deduplication.add(sourceMessage);
+                if (deduplication.add(sourceMessage)) {
+                    deduplicatedSet.add(sourceMessage);
+                };
             }
         }
-        return deduplication;
+        return deduplicatedSet;
     }
 
     public Iterable<SourceMessage> filtering(Iterable<SourceMessage> source) {
@@ -101,67 +104,45 @@ public class ServiceMessageHandle {
         return list;
     }
 
-    public Iterable<SourceMessage> groupBy(Iterable<SourceMessage> source) {
-        Map<SourceMessage, SourceMessage> grouped = new TreeMap(new Comparator<SourceMessage>() {
-            @Override
-            public int compare(SourceMessage o1, SourceMessage o2) {
-                for (String key : keySetGroupBy) {
-                    String value_o1 = o1.labels().get(key);
-                    String value_o2 = o2.labels().get(key);
-                    if (value_o1 != null & value_o2 != null && value_o1.equals(value_o2)) {
-                        return 0;
-                    }
-                }
-                return 1;
-            }
-        });
-
+    public Iterable<SinkMessage> groupAndAggregation(Iterable<SourceMessage> source) {
+        Map<String, SinkMessage> groupedToSink = new HashMap<>();
         for (SourceMessage sourceMessage : source) {
-            SourceMessage message = grouped.get(sourceMessage);
-            if (message != null) {
-                long groupedTimestemp = Math.max(message.timestamp(), sourceMessage.timestamp());
-                Map<String, String> groupedLabels = new HashMap<>(message.labels());
-                for (Map.Entry<String, String> str : message.labels().entrySet()) {
-                    groupedLabels.put(str.getKey(), str.getValue());
-                }
-                double groupedValue = message.value() + sourceMessage.value();
-                SourceMessage groupedMessage = new SourceMessageImp(groupedTimestemp, groupedLabels, groupedValue);
-                grouped.put(groupedMessage, groupedMessage);
+            Map<String, String> labels = sourceMessage.labels();
+            StringBuilder sb = new StringBuilder();
+            for (String key : keySetGroupBy) {
+                sb.append(key);
+                sb.append(labels.get(key));
+            }
+            String keyGroup = sb.toString();
+            SinkMessageImp sinkMessage = (SinkMessageImp) groupedToSink.get(keyGroup);
+            if (sinkMessage == null) {
+                groupedToSink.put(keyGroup, new SinkMessageImp(sourceMessage.timestamp(),
+                        sourceMessage.timestamp(),
+                        new HashMap<>(sourceMessage.labels()),
+                        sourceMessage.value(),
+                        sourceMessage.value(),
+                        sourceMessage.value(),
+                        1));
             } else {
-                grouped.put(sourceMessage, sourceMessage);
+                sinkMessage.setFrom(Math.min(sinkMessage.from(), sourceMessage.timestamp()));
+                sinkMessage.setTo(Math.max(sinkMessage.to(), sourceMessage.timestamp()));
+                sinkMessage.labels().putAll(sourceMessage.labels());
+                sinkMessage.setMin(Math.min(sinkMessage.min(), sourceMessage.value()));
+                sinkMessage.setMax(Math.max(sinkMessage.max(), sourceMessage.value()));
+                sinkMessage.setAvg((sinkMessage.avg() * sinkMessage.count() + sourceMessage.value()) / (sinkMessage.count() + 1));
+                sinkMessage.setCount(sinkMessage.count() + 1);
             }
         }
-        return grouped.values();
+        return groupedToSink.values();
     }
 
-    public SinkMessage aggregation(Iterable<SourceMessage> source) {
-        Map<String, String> labels = new HashMap<>();
-        double min = Double.MAX_VALUE;
-        double max = -Double.MAX_VALUE;
-        double sum = 0;
-        double avg = 0;
-        int count = 0;
-        long from = Long.MAX_VALUE;
-        long to = Long.MIN_VALUE;
-        for (SourceMessage sourceMessage : source) {
-            from = Math.min(sourceMessage.timestamp(), from);
-            to = Math.max(sourceMessage.timestamp(), to);
-            labels.putAll(sourceMessage.labels());
-            double value = sourceMessage.value();
-            min = Math.min(min, value);
-            max = Math.max(max, value);
-            sum += value;
-            count++;
+    private Boolean sinkMessage(Iterable<SinkMessage> sinkMessages) {
+        Boolean result = false;
+        Iterator<SinkMessage> iterator = sinkMessages.iterator();
+        while (iterator.hasNext()) {
+            sinkKafkaProducer.accept(iterator.next());
+            result = true;
         }
-        avg = sum / count;
-        return new SinkMessageImp(from, to, labels, min, max, avg, count);
-    }
-
-    private Boolean sinkMessage(SinkMessage sinkMessage) {
-        if (sinkMessage.count() > 0) {
-            sinkKafkaProducer.accept(sinkMessage);
-            return true;
-        }
-        return false;
+        return result;
     }
 }
