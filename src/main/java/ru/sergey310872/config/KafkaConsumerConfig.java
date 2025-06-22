@@ -10,10 +10,12 @@ import java.util.Properties;
 
 public class KafkaConsumerConfig {
     private KafkaConsumer<String, SourceMessage> consumer;
+    private Properties props;
+    private String topic;
 
     public KafkaConsumerConfig() {
         Properties properties = PropertiesFile.PROP;
-        Properties props = new Properties();
+        props = new Properties();
 
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
                 properties.getProperty("bootstrap.servers", "localhost:9092"));
@@ -22,11 +24,19 @@ public class KafkaConsumerConfig {
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
 
         this.consumer = new KafkaConsumer<>(props);
-        String topic = properties.getProperty("kafka.source.topic", "SOURCE");
+        topic = properties.getProperty("kafka.source.topic", "SOURCE");
         consumer.subscribe(Collections.singletonList(topic));
     }
 
     public KafkaConsumer<String, SourceMessage> getConsumer() {
         return consumer;
+    }
+
+    public Properties getProps() {
+        return props;
+    }
+
+    public String getTopic() {
+        return topic;
     }
 }

@@ -90,5 +90,12 @@ public class SourceMessageImp implements SourceMessage, Serializable {
 //        return 0;
     }
 
-
+    @Override
+    public String toString() {
+        return "SourceMessageImp{" +
+                "timestamp=" + timestamp +
+                ", labels=" + labels +
+                ", value=" + value +
+                '}';
+    }
 }

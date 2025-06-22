@@ -9,10 +9,12 @@ import java.util.Properties;
 
 public class KafkaProducerConfig {
     private KafkaProducer<String, SinkMessage> producer;
+    private Properties props;
+
 
     public KafkaProducerConfig() {
         Properties properties = PropertiesFile.PROP;
-        Properties props = new Properties();
+        props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
                 properties.getProperty("bootstrap.servers", "localhost:9092"));
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -22,5 +24,9 @@ public class KafkaProducerConfig {
 
     public KafkaProducer<String, SinkMessage> getProducer() {
         return producer;
+    }
+
+    public Properties getProps() {
+        return props;
     }
 }

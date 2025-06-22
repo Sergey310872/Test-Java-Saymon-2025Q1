@@ -86,7 +86,7 @@ public class EndToEndTesting {
     }
 
     @Test
-    void sendMessageToKafka() {
+    void sendMessageToKafka() throws InterruptedException {
         //Готовим сообщение
 //        Map<String, String> testMap = new HashMap<>();
 //        testMap.put("key", "volume produced");
@@ -97,25 +97,34 @@ public class EndToEndTesting {
         serviceMessageList.add(new SourceMessageImp(11113, Map.of("A", "value B"), 50));
         serviceMessageList.add(new SourceMessageImp(11114, Map.of("B", "value B"), 60));
         serviceMessageList.add(new SourceMessageImp(11115, Map.of("B", "value B"), 70));
+        serviceMessageList.add(new SourceMessageImp(11116, Map.of("A", "value A"), 40));
+        serviceMessageList.add(new SourceMessageImp(11117, Map.of("A", "value B"), 50));
+        serviceMessageList.add(new SourceMessageImp(11118, Map.of("B", "value B"), 60));
+        serviceMessageList.add(new SourceMessageImp(11119, Map.of("A", "value A"), 40));
+        serviceMessageList.add(new SourceMessageImp(11120, Map.of("A", "value B"), 50));
+        serviceMessageList.add(new SourceMessageImp(11121, Map.of("B", "value B"), 60));
 
 //        List<SinkMessage> expected = new ArrayList<>();
         List<SinkMessage> expected = new ArrayList<>();
         expected.add(new SinkMessageImp(11114, 11115, Map.of("B", "value B"), 60, 70, 65, 2));
-        expected.add(new SinkMessageImp(11111, 11113, Map.of("A", "value A"), 30, 50, 40, 2));
+        expected.add(new SinkMessageImp(11118, 11118, Map.of("B", "value B"), 60, 60, 60, 1));
+        expected.add(new SinkMessageImp(11121, 11121, Map.of("B", "value B"), 60, 60, 60, 1));
 
 
         // Отправляем сообщение
 //        sinkKafkaProducer.accept(sinkMessage);
-        String topic = PROPERTY.getProperty("kafka.source.topic", "SINK");
+        String topic = PROPERTY.getProperty("kafka.source.topic", "SOURCE");
         String key = PROPERTY.getProperty("kafka.produce.key", "key1");
 
         for (SourceMessage serviceMessage : serviceMessageList) {
             ProducerRecord<String, SourceMessage> record = new ProducerRecord<>(topic, key, serviceMessage);
             producer.send(record);
+            System.out.println("        send: " + serviceMessage);
+            Thread.sleep(2000);
         }
 
         // Читаем сообщение
-        ConsumerRecords<String, SinkMessage> received = consumer.poll(Duration.ofSeconds(10));
+        ConsumerRecords<String, SinkMessage> received = consumer.poll(Duration.ofSeconds(100));
         List<SinkMessage> valuesList = new ArrayList<>();
         for (ConsumerRecord<String, SinkMessage> record : received) {
             valuesList.add(record.value());
@@ -124,11 +133,17 @@ public class EndToEndTesting {
 
 
 //        ConsumerRecord<String, SinkMessage> received = received1.iterator().next();
+        System.out.println("----------------------------- test ----------------------------");
+        for (SinkMessage serviceMessage : valuesList) {
+            System.out.println(serviceMessage);
+        }
 
         // Проверяем
         assertNotNull(valuesList);
         assertNotSame(serviceMessageList, valuesList);
         assertEquals(expected.get(0), valuesList.get(0));
+        assertEquals(expected.get(1), valuesList.get(1));
+        assertEquals(expected.get(2), valuesList.get(2));
 //        assertEquals(expected.get(1), valuesList.get(1));
 //        assertIterableEquals(expected, valuesList);
 

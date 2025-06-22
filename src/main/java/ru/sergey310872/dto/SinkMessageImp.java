@@ -109,4 +109,17 @@ public class SinkMessageImp implements SinkMessage {
     public int hashCode() {
         return Objects.hash(from, to, labels, min, max, avg, count);
     }
+
+    @Override
+    public String toString() {
+        return "SinkMessageImp{" +
+                "from=" + from +
+                ", to=" + to +
+                ", labels=" + labels +
+                ", min=" + min +
+                ", max=" + max +
+                ", avg=" + avg +
+                ", count=" + count +
+                '}';
+    }
 }
